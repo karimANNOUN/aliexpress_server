@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
+const verifyToken = require('./verifyToken/verifyToken')
 
 const prisma = new PrismaClient()
 const app = express()
@@ -86,7 +87,8 @@ app.post('/register', async (req, res) => {
         email,
         name,
         confirmationCode,
-        password:hashedPassword
+        password:hashedPassword,
+        role:"simple"
       },
     });
     await transporter.sendMail(mailOptions);
@@ -130,7 +132,7 @@ const { email, password } = req.body;
 
 // Find the user by email
 const user = await prisma.user.findUnique({
-  where: { email },
+  where: { email }
 });
 
 if (!user) {
@@ -216,9 +218,9 @@ app.post('/confirmpassword', async (req, res) => {
 
     // Generate a JWT token for the user
    // const token = jwt.sign({ email: user.email }, SECRET_KEY, { expiresIn: '24h' });
- //  const token = jwt.sign({ users: user }, SECRET_KEY, { expiresIn: '7d' });
+   const token = jwt.sign({ users: user }, SECRET_KEY, { expiresIn: '7d' });
 
-    return res.json({ success: true, message: 'Email confirmed successfully.',user});
+    return res.json({ success: true, message: 'Email confirmed successfully.',token});
   } else {
     return res.status(400).json({ success: false, message: 'Invalid confirmation code.' });
   }
@@ -230,14 +232,14 @@ app.post('/confirmpassword', async (req, res) => {
 
 
 
-app.post('/updatepassword', async (req, res) => {
+app.post('/updatepassword', verifyToken ,async (req, res) => {
   try {
-  const { email ,password } = req.body;
+  const { password } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
     await prisma.user.update({
-      where: { email },
+      where: { email:req.user.email },
       data: { password: hashedPassword },
     });
 
@@ -259,6 +261,77 @@ app.post('/updatepassword', async (req, res) => {
 
 
 
+app.post('/registerseller', async (req, res) => {
+  const { email,name,password,state } = req.body;
+
+  const existingUser = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (existingUser) {
+    return res.status(400).json({ success: false, message: 'User already exists.' });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+  
+
+  const confirmationCode  = generateConfirmationCode();
+
+
+ 
+
+  
+  const mailOptions = {
+    from: `${process.env.MY_EMAIL}`, 
+    to: email,
+    subject: 'Email Confirmation',
+    text: `Your confirmation code is: ${confirmationCode}`, 
+  };
+
+  try {
+    const newUser = await prisma.user.create({
+      data: {
+        email,
+        name,
+        confirmationCode,
+        password:hashedPassword,
+        role:"seller attente1",
+        state,
+      },
+    });
+    await transporter.sendMail(mailOptions);
+    return res.json({ success: true, message: 'Confirmation email sent successfully.',newUser });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Error sending confirmation email.' });
+  }
+});
+
+
+app.post('/confirmseller', async (req, res) => {
+  const { email, code } = req.body;
+
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+
+  if (user && user.confirmationCode === code) {
+    
+    await prisma.user.update({
+      where: { email },
+      data: { confirmationCode: null },
+    });
+
+  
+   const token = jwt.sign({ users: user }, SECRET_KEY, { expiresIn: '7d' });
+
+    return res.json({ success: true, message: 'Email confirmed successfully.',token});
+  } else {
+    return res.status(400).json({ success: false, message: 'Invalid confirmation code.' });
+  }
+});
 
 
 

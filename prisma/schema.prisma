@@ -14,6 +14,66 @@ model User {
   password String?
   confirmationCode String?
   createdAt   DateTime @default(now())
+  role String?
+  state String?
+  seller Seller?
+}
+
+model Seller {
+  id    Int     @id @default(autoincrement())
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     @unique
+  entrepriseInfo Entreprise?
+  reprisentativeLegal Legalrepresentative?
+
 }
 
 
+model Entreprise {
+   id    Int     @id @default(autoincrement())
+  seller   Seller    @relation(fields: [sellerId], references: [id])
+  sellerId Int     @unique
+   status String?
+  imageStatus String?
+  entrepriseType String?
+  raisonSociale String?
+  numberSirene String?
+  certificatEntreprise String?
+  tvaNumber String?
+  pays String?
+  stateEntreprise String?
+  commune String?
+  postalCode String?
+  rueNumber String?
+  businessManager String?
+  certificatType String?
+  certificatNumber String?
+}
+
+model Legalrepresentative {
+  id    Int     @id @default(autoincrement())
+  seller   Seller    @relation(fields: [sellerId], references: [id])
+  sellerId Int     @unique
+  completeName String?
+  nationality String?
+  nativeCountry String?
+  birthday String?
+  identityType Identity?
+  pays String?
+  state String?
+  commune String?
+  postalCode String?
+  certificatResidence String?
+
+
+
+}
+
+model Identity {
+  id    Int     @id @default(autoincrement())
+  legal   Legalrepresentative    @relation(fields: [legalId], references: [id])
+  legalId Int     @unique
+  identityType String?
+  imageone String?
+  imagetow String?
+}
