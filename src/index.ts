@@ -1,4 +1,11 @@
 //@ts-nocheck
+
+if(process.env.NODE_ENV !== "production"){
+  require('dotenv').config();
+  
+  };
+
+
 import {  PrismaClient } from '@prisma/client'
 import express from 'express'
 const cors = require('cors');
@@ -6,7 +13,9 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
-const verifyToken = require('./verifyToken/verifyToken')
+const verifyToken = require('./verifyTokens/verifyToken');
+const multer = require('multer');
+const {storage}= require('./upload/cloudinary')
 
 const prisma = new PrismaClient()
 const app = express()
@@ -31,7 +40,7 @@ app.use((req:Request, res:Response, next:any) => {
   })
 
 
-
+  const upload = multer({ storage:storage })
 
 
 
@@ -232,7 +241,7 @@ app.post('/confirmpassword', async (req, res) => {
 
 
 
-app.post('/updatepassword', verifyToken ,async (req, res) => {
+app.post('/updatepassword',verifyToken ,async (req, res) => {
   try {
   const { password } = req.body;
 
@@ -334,7 +343,14 @@ app.post('/confirmseller', async (req, res) => {
 });
 
 
+app.post('/sellerstep',upload.array('file'),verifyToken,async(req,res)=>{
+   console.log(req.body)
+})
 
+app.get('/user',verifyToken,async(req,res)=>{
+  const user = req.user
+  res.json({ sucess:true, user})
+})
 
 
 
