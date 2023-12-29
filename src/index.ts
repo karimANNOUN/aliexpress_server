@@ -333,8 +333,11 @@ app.post('/confirmseller', async (req, res) => {
       data: { confirmationCode: null },
     });
 
+    const newUser=await prisma.user.findUnique({
+      where: { email },
+    });
   
-   const token = jwt.sign({ users: user }, SECRET_KEY, { expiresIn: '7d' });
+   const token = jwt.sign({ users: newUser }, SECRET_KEY, { expiresIn: '7d' });
 
     return res.json({ success: true, message: 'Email confirmed successfully.',token});
   } else {
@@ -344,7 +347,77 @@ app.post('/confirmseller', async (req, res) => {
 
 
 app.post('/sellerstep',upload.array('file'),verifyToken,async(req,res)=>{
-   console.log(req.body)
+  try {
+   const companySeller = await prisma.entreprise.create({
+    data: {
+      userId:req.user.user.id,
+      imageStatus:req.files[0].path,
+      entrepriseType:req.body.statusType,
+      raisonSociale :req.body.raisonSocial,
+      numberSirene :req.body.numberSirene,
+      certificatEntreprise :req.files[1].path,
+      tvaNumber : req.body.tva,
+      pays :req.body.pays,
+      stateEntreprise :req.body.stateEntreprise,
+      commune :req.body.commune, 
+      postalCode :req.body.postalCode,
+      rueNumber :req.body.rueNumber,
+      industryType :req.body.industryType,
+      businessManager :req.body.businessManager,
+      certificatType :req.body.certificatType,
+      certificatNumber :req.body.certificatNumber,
+      entreprisePhoneNumber :req.body.societePhone
+      
+    },
+  });
+
+   
+  const reprisentativeSeller = await prisma.legalrepresentative.create({
+    data: {
+  userlegalId:req.user.user.id,
+  completeName :req.body.completeName,
+  nationality :req.body.nationality,
+  nativeCountry :req.body.nativeContry,
+  birthday :req.body.birthday,
+  pays :req.body.paysLegal,
+  state :req.body.state,
+  commune :req.body.communeLegal,
+  postalCode :req.body.postalCodeLegal,
+  certificatResidence :req.files[2].path,
+  identityType :req.body.identityType,
+  identityTypeNumber :req.body.identityNumber,
+  identityImages :req.files[3].path,
+  legalPhoneNumber :req.body.reprisentativePhone,
+  expireIdentity :req.body.expire
+
+     
+    },
+  });
+
+  if ( companySeller && reprisentativeSeller ) {
+
+    const reprisentativeSeller = await prisma.user.update({
+      where: { id:req.user.user.id },
+      data:{
+        role: "seller attente2"
+      }
+
+    })
+
+   
+       
+    return res.status(200).json({ success: true, message: 'demande seller success' });      
+ 
+
+  }
+
+
+}catch (error) {
+    console.error(error);
+    return res.status(500).json({ success: false, message: 'Error server' });
+  }
+
+
 })
 
 app.get('/user',verifyToken,async(req,res)=>{
@@ -352,7 +425,7 @@ app.get('/user',verifyToken,async(req,res)=>{
   res.json({ sucess:true, user})
 })
 
-
+   
 
 app.listen(8000, () =>
   console.log(`🚀Server ready at: http://localhost:8000`))

@@ -16,23 +16,16 @@ model User {
   createdAt   DateTime @default(now())
   role String?
   state String?
-  seller Seller?
-}
-
-model Seller {
-  id    Int     @id @default(autoincrement())
-  user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
   entrepriseInfo Entreprise?
   reprisentativeLegal Legalrepresentative?
-
 }
+
 
 
 model Entreprise {
-   id    Int     @id @default(autoincrement())
-  seller   Seller    @relation(fields: [sellerId], references: [id])
-  sellerId Int     @unique
+  id    Int     @id @default(autoincrement())
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     @unique
   imageStatus String?
   entrepriseType String?
   raisonSociale String?
@@ -49,12 +42,12 @@ model Entreprise {
   certificatType String?
   certificatNumber String?
   entreprisePhoneNumber String?
-}
+} 
 
 model Legalrepresentative {
   id    Int     @id @default(autoincrement())
-  seller   Seller    @relation(fields: [sellerId], references: [id])
-  sellerId Int     @unique
+  user   User    @relation(fields: [userlegalId], references: [id])
+  userlegalId Int     @unique
   completeName String?
   nationality String?
   nativeCountry String?
@@ -66,7 +59,7 @@ model Legalrepresentative {
   certificatResidence String?
   identityType String?
   identityTypeNumber String?
-  identityImages String[]
+  identityImages String?
   legalPhoneNumber String?
   expireIdentity String?
 
