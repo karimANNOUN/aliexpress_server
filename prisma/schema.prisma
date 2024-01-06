@@ -18,6 +18,7 @@ model User {
   state String?
   entrepriseInfo Entreprise?
   reprisentativeLegal Legalrepresentative?
+  products Product[]
 }
 
 
@@ -65,3 +66,42 @@ model Legalrepresentative {
 
 }
 
+
+model Product {
+  id      Int     @id @default(autoincrement())
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     @unique
+  price   Int?
+  properties String?
+  solde Int?
+  prixlivraison Int?
+  templivraison Int?
+  quantity Int?
+  category String?
+  description String?
+  descriptiontitle1 String?
+  descriptiontitle2 String?
+  descriptiontitle3 String?
+  descriptiondetail1 String?
+  descriptiondetail2 String?
+  descriptiondetail3 String?
+  images  Image[]
+  property Property[]
+
+}
+
+model Image {
+  id        Int      @id @default(autoincrement())
+  imageUrl  String
+  color     String
+  productId    Int
+  product      Product     @relation(fields: [productId], references: [id])
+}
+
+model Property {
+  id        Int      @id @default(autoincrement())
+  detailsName     String
+  quantity     Int
+  productId    Int
+  product      Product     @relation(fields: [productId], references: [id])
+}

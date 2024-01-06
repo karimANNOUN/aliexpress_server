@@ -126,7 +126,7 @@ app.post('/confirm', async (req, res) => {
 
     // Generate a JWT token for the user
    // const token = jwt.sign({ email: user.email }, SECRET_KEY, { expiresIn: '24h' });
-   const token = jwt.sign({ users: user }, SECRET_KEY, { expiresIn: '7d' });
+   const token = jwt.sign({ user: user }, SECRET_KEY, { expiresIn: '7d' });
 
     return res.json({ success: true, message: 'Email confirmed successfully.',token});
   } else {
@@ -227,7 +227,7 @@ app.post('/confirmpassword', async (req, res) => {
 
     // Generate a JWT token for the user
    // const token = jwt.sign({ email: user.email }, SECRET_KEY, { expiresIn: '24h' });
-   const token = jwt.sign({ users: user }, SECRET_KEY, { expiresIn: '7d' });
+   const token = jwt.sign({ user: user }, SECRET_KEY, { expiresIn: '7d' });
 
     return res.json({ success: true, message: 'Email confirmed successfully.',token});
   } else {
@@ -257,8 +257,8 @@ app.post('/updatepassword',verifyToken ,async (req, res) => {
     });
 
    
- 
-   const token = jwt.sign({ users: user }, SECRET_KEY, { expiresIn: '7d' });
+  
+   const token = jwt.sign({ user: user }, SECRET_KEY, { expiresIn: '7d' });
 
     return res.json({ success: true, message: 'password update successfully.',token});
   } catch (error) {
@@ -278,7 +278,7 @@ app.post('/registerseller', async (req, res) => {
   });
 
   if (existingUser) {
-    return res.status(400).json({ success: false, message: 'User already exists.' });
+    return res.status(400).json({ success: false, message: 'User already exists.' }); 
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -337,7 +337,7 @@ app.post('/confirmseller', async (req, res) => {
       where: { email },
     });
   
-   const token = jwt.sign({ users: newUser }, SECRET_KEY, { expiresIn: '7d' });
+   const token = jwt.sign({ user: newUser }, SECRET_KEY, { expiresIn: '7d' });
 
     return res.json({ success: true, message: 'Email confirmed successfully.',token});
   } else {
@@ -347,85 +347,136 @@ app.post('/confirmseller', async (req, res) => {
 
 
 app.post('/sellerstep',upload.array('file'),verifyToken,async(req,res)=>{
-  try {
-   const companySeller = await prisma.entreprise.create({
-    data: {
-      userId:req.user.user.id,
-      imageStatus:req.files[0].path,
-      entrepriseType:req.body.statusType,
-      raisonSociale :req.body.raisonSocial,
-      numberSirene :req.body.numberSirene,
-      certificatEntreprise :req.files[1].path,
-      tvaNumber : req.body.tva,
-      pays :req.body.pays,
-      stateEntreprise :req.body.stateEntreprise,
-      commune :req.body.commune, 
-      postalCode :req.body.postalCode,
-      rueNumber :req.body.rueNumber,
-      industryType :req.body.industryType,
-      businessManager :req.body.businessManager,
-      certificatType :req.body.certificatType,
-      certificatNumber :req.body.certificatNumber,
-      entreprisePhoneNumber :req.body.societePhone
-      
-    },
-  });
 
-   
-  const reprisentativeSeller = await prisma.legalrepresentative.create({
-    data: {
-  userlegalId:req.user.user.id,
-  completeName :req.body.completeName,
-  nationality :req.body.nationality,
-  nativeCountry :req.body.nativeContry,
-  birthday :req.body.birthday,
-  pays :req.body.paysLegal,
-  state :req.body.state,
-  commune :req.body.communeLegal,
-  postalCode :req.body.postalCodeLegal,
-  certificatResidence :req.files[2].path,
-  identityType :req.body.identityType,
-  identityTypeNumber :req.body.identityNumber,
-  identityImages :req.files[3].path,
-  legalPhoneNumber :req.body.reprisentativePhone,
-  expireIdentity :req.body.expire
-
-     
-    },
-  });
-
-  if ( companySeller && reprisentativeSeller ) {
-
-    const reprisentativeSeller = await prisma.user.update({
-      where: { id:req.user.user.id },
-      data:{
-        role: "seller attente2"
-      }
-
-    })
-
-   
-       
-    return res.status(200).json({ success: true, message: 'demande seller success' });      
+ try {
  
+// const user=req.user
+ 
+const companySeller = await prisma.entreprise.create({
+  data: {
+    userId:req.user.user.id,
+    imageStatus:req.files[0].path,
+    entrepriseType:req.body.statusType,
+    raisonSociale :req.body.raisonSocial,
+    numberSirene :req.body.numberSirene,
+    certificatEntreprise :req.files[1].path,
+    tvaNumber : req.body.tva,
+    pays :req.body.pays,
+    stateEntreprise :req.body.stateEntreprise,
+    commune :req.body.commune, 
+    postalCode :req.body.postalCode,
+    rueNumber :req.body.rueNumber,
+    industryType :req.body.industryType,
+    businessManager :req.body.businessManager,
+    certificatType :req.body.certificatType,
+    certificatNumber :req.body.certificatNumber,
+    entreprisePhoneNumber :req.body.societePhone
+    
+  },
+});
 
-  }
+ 
+const reprisentativeSeller = await prisma.legalrepresentative.create({
+  data: {
+userlegalId:req.user.user.id,
+completeName :req.body.completeName,
+nationality :req.body.nationality,
+nativeCountry :req.body.nativeContry,
+birthday :req.body.birthday,
+pays :req.body.paysLegal,
+state :req.body.state,
+commune :req.body.communeLegal,
+postalCode :req.body.postalCodeLegal,
+certificatResidence :req.files[2].path,
+identityType :req.body.identityType,
+identityTypeNumber :req.body.identityNumber,
+identityImages :req.files[3].path,
+legalPhoneNumber :req.body.reprisentativePhone,
+expireIdentity :req.body.expire
+  },
+});
 
+if ( companySeller && reprisentativeSeller ) {
+
+  const reprisentativeSeller = await prisma.user.update({
+    where: { id:req.user.user.id },
+    data:{
+      role: "seller attente2"  
+    }
+
+  })
+
+}
+
+res.status(200).json({ success: true, message: 'demande seller success' });  
 
 }catch (error) {
-    console.error(error);
-    return res.status(500).json({ success: false, message: 'Error server' });
-  }
+console.error(error);
+   return res.status(500).json({ success: false, message: 'Error server' });
+ }
+})
+
+
+
+app.post('/product',upload.any(),verifyToken,async(req,res)=>{
+
+ try {
+
+  const {properties,description,categoryType,firstTitle,secondTitle,thirdTitle,firstDescription,secondDescription,thirdDescription} =req.body
+ 
+  const newProduct = await prisma.product.create({
+    data: {
+  userId :req.user.user.id,
+  properties :properties,
+  solde :parseInt(req.body.solde),
+  prixlivraison :parseInt(req.body.livraison),
+  templivraison :parseInt(req.body.livraisonTime),
+  quantity :parseInt(req.body.quantity),
+  price  :parseInt(req.body.price),
+  category :categoryType,
+  description :description, 
+  descriptiontitle1 :firstTitle,
+  descriptiontitle2 :secondTitle,
+  descriptiontitle3 :thirdTitle,
+  descriptiondetail1 :firstDescription,
+  descriptiondetail2 :secondDescription,
+  descriptiondetail3 :thirdDescription,
+  images: {
+   create: req.files.map(file=>   ({ imageUrl: `${file.path}`  ,color:`${file.fieldname}` })   )
+    },
+    property: {
+      create: JSON.parse(req.body.propertiesDetails).map(detail=>   ({ detailsName: `${detail.propertyDetail}`  ,quantity:parseInt(detail.quantityDetail) })   )
+       },
+    },
+    include: {
+      images: true,
+      property: true
+    },
+  });
+  
+  if (newProduct) {
+    res.status(200).json({ success: true, message: 'product posted success' });    
+  }  
+  
+  
+  }catch (error) {
+  console.error(error);
+     return res.status(500).json({ success: false, message: 'Error server' });
+   }
+
 
 
 })
+
+ 
+
 
 app.get('/user',verifyToken,async(req,res)=>{
-  const user = req.user
+  const user = req.user 
   res.json({ sucess:true, user})
 })
-
+ 
    
 
 app.listen(8000, () =>
-  console.log(`🚀Server ready at: http://localhost:8000`))
+  console.log(`🚀Server ready at: http://localhost:8000`)) 
