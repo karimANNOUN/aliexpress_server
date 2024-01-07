@@ -71,6 +71,7 @@ model Product {
   id      Int     @id @default(autoincrement())
   user   User    @relation(fields: [userId], references: [id])
   userId Int     @unique
+  title String?
   price   Int?
   properties String?
   solde Int?

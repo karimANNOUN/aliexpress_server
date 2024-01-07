@@ -475,6 +475,48 @@ app.get('/user',verifyToken,async(req,res)=>{
   const user = req.user 
   res.json({ sucess:true, user})
 })
+
+app.get('/getproduct',async(req,res)=>{
+  try{
+  const products = await prisma.product.findMany({
+    include: {
+      user:true,
+      images: true,
+      property: true
+    },
+  })
+console.log(products)
+  res.status(200).json({ success: true, message: 'product posted success',products });  
+
+}catch (error) {
+  console.error(error);
+     return res.status(500).json({ success: false, message: 'Error server' });
+   }
+
+})
+
+
+app.get('/getproduct/:id',async(req,res)=>{
+  console.log(req.params.id)
+
+  try{
+    const product = await prisma.product.findUnique({
+      where:{id:parseInt(req.params.id)},
+      include: {
+        user:true,
+        images: true,
+        property: true
+      },
+    })
+  console.log(product)
+    res.status(200).json({ success: true, message: 'product posted success',product });  
+  
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+ 
+})
  
    
 
