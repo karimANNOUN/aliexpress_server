@@ -360,7 +360,7 @@ const companySeller = await prisma.entreprise.create({
     raisonSociale :req.body.raisonSocial,
     numberSirene :req.body.numberSirene,
     certificatEntreprise :req.files[1].path,
-    tvaNumber : req.body.tva,
+    tvaNumber : req.body.tva, 
     pays :req.body.pays,
     stateEntreprise :req.body.stateEntreprise,
     commune :req.body.commune, 
@@ -422,11 +422,12 @@ app.post('/product',upload.any(),verifyToken,async(req,res)=>{
 
  try {
 
-  const {properties,description,categoryType,firstTitle,secondTitle,thirdTitle,firstDescription,secondDescription,thirdDescription} =req.body
+  const {title,properties,description,categoryType,firstTitle,secondTitle,thirdTitle,firstDescription,secondDescription,thirdDescription} =req.body
  
   const newProduct = await prisma.product.create({
     data: {
   userId :req.user.user.id,
+  title:title,
   properties :properties,
   solde :parseInt(req.body.solde),
   prixlivraison :parseInt(req.body.livraison),
@@ -485,7 +486,6 @@ app.get('/getproduct',async(req,res)=>{
       property: true
     },
   })
-console.log(products)
   res.status(200).json({ success: true, message: 'product posted success',products });  
 
 }catch (error) {
@@ -497,7 +497,7 @@ console.log(products)
 
 
 app.get('/getproduct/:id',async(req,res)=>{
-  console.log(req.params.id)
+ 
 
   try{
     const product = await prisma.product.findUnique({
@@ -508,7 +508,7 @@ app.get('/getproduct/:id',async(req,res)=>{
         property: true
       },
     })
-  console.log(product)
+ 
     res.status(200).json({ success: true, message: 'product posted success',product });  
   
   }catch (error) {
@@ -516,6 +516,47 @@ app.get('/getproduct/:id',async(req,res)=>{
        return res.status(500).json({ success: false, message: 'Error server' });
      }
  
+})
+
+
+
+app.post('/addstoreproduct',verifyToken,async(req,res)=>{
+  console.log(req.body)
+ 
+  try {
+
+    const {optionSize,quantitySize,favoritColor, favoriteImage ,art} =req.body
+   
+    const storeProduct = await prisma.storeuser.create({
+      data: {
+    userId :req.user.user.id,
+    colorProduct: favoritColor ,
+    propertyType: optionSize ,
+    quantity: quantitySize ,
+    imageUrl: favoriteImage ,
+    storeBuyerName: art.user.name , 
+    storeBuyerId: art.user.id,
+    productstoreId: art.id ,
+    }
+  });
+    
+    if (storeProduct) {
+
+      const storeProductUser = await prisma.storeuser.findMany({
+        where:{userId:req.user.user.id}
+      })
+       
+
+      res.status(200).json({ success: true, message: 'product stored success',storeProductUser });    
+    }  
+    
+    
+    }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+
+
 })
  
    

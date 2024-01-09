@@ -19,6 +19,7 @@ model User {
   entrepriseInfo Entreprise?
   reprisentativeLegal Legalrepresentative?
   products Product[]
+  storeuser Storeuser?
 }
 
 
@@ -88,7 +89,7 @@ model Product {
   descriptiondetail3 String?
   images  Image[]
   property Property[]
-
+  store Storeuser[]
 }
 
 model Image {
@@ -105,4 +106,22 @@ model Property {
   quantity     Int
   productId    Int
   product      Product     @relation(fields: [productId], references: [id])
+}
+
+
+
+
+model Storeuser {
+  id      Int     @id @default(autoincrement())
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     @unique
+  productstoreId Int     
+  createdAt   DateTime @default(now())
+  colorProduct String?
+  propertyType String?
+  quantity Int
+  imageUrl String?
+  storeBuyerName String? 
+  storeBuyerId Int
+  product Product[]
 }
