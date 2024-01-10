@@ -521,27 +521,58 @@ app.get('/getproduct/:id',async(req,res)=>{
 
 
 app.post('/addstoreproduct',verifyToken,async(req,res)=>{
-  console.log(req.body)
+ // console.log(req.body)
  
   try {
 
     const {optionSize,quantitySize,favoritColor, favoriteImage ,art} =req.body
-   
-    const storeProduct = await prisma.storeuser.create({
-      data: {
-    userId :req.user.user.id,
-    colorProduct: favoritColor ,
-    propertyType: optionSize ,
-    quantity: quantitySize ,
-    imageUrl: favoriteImage ,
-    storeBuyerName: art.user.name , 
-    storeBuyerId: art.user.id,
-    productstoreId: art.id ,
-    }
-  });
-    
-    if (storeProduct) {
 
+    const findStore= await prisma.storeuser.findMany({
+      where:{userId:req.user.user.id},
+      include:{
+         product:true
+      }
+    })
+
+    if (findStore.length) {
+      const newStore = findStore.find(str=> str.propertyType == optionSize && str.colorProduct == favoritColor )
+      if (newStore == undefined ) {
+        const storeProduct = await prisma.storeuser.create({
+          data: {
+        userId :req.user.user.id,
+        colorProduct: favoritColor ,
+        propertyType: optionSize ,
+        quantity: quantitySize , 
+        imageUrl: favoriteImage ,
+        productstoreId:art.id
+        }
+      });
+        
+        if (storeProduct) {
+    
+          const storeProductUser = await prisma.storeuser.findMany({
+            where:{userId:req.user.user.id}
+          })
+           
+    
+          res.status(200).json({ success: true, message: 'product stored success',storeProductUser });    
+        }  
+      }if (newStore !== undefined) {
+        res.status(401).json({ success: false, message: 'product already exist in your store'});   
+      }    
+    }if (!findStore.length) {
+      const storeProduct = await prisma.storeuser.create({
+        data: {
+      userId :req.user.user.id,
+      colorProduct: favoritColor ,
+      propertyType: optionSize ,
+      quantity: quantitySize , 
+      imageUrl: favoriteImage ,
+      productstoreId:art.id
+      }
+    });
+    if (storeProduct) {
+    
       const storeProductUser = await prisma.storeuser.findMany({
         where:{userId:req.user.user.id}
       })
@@ -549,7 +580,9 @@ app.post('/addstoreproduct',verifyToken,async(req,res)=>{
 
       res.status(200).json({ success: true, message: 'product stored success',storeProductUser });    
     }  
-    
+    }
+
+  
     
     }catch (error) {
     console.error(error);
@@ -559,6 +592,29 @@ app.post('/addstoreproduct',verifyToken,async(req,res)=>{
 
 })
  
+
+app.get('/getstoreproduct',verifyToken,async(req,res)=>{
+ 
+  const storeProductUser = await prisma.storeuser.findMany({
+    where:{userId:req.user.user.id},
+    include:{
+           product:{
+            include:{
+              user:true,
+              property:true,
+              images:true
+            }
+           },
+           user:true
+    }
+  })
+
+  
+
+  res.status(200).json({ success: true, message: 'product stored success',storeProductUser });    
+
+})
+
    
 
 app.listen(8000, () =>

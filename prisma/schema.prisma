@@ -19,7 +19,7 @@ model User {
   entrepriseInfo Entreprise?
   reprisentativeLegal Legalrepresentative?
   products Product[]
-  storeuser Storeuser?
+  storeuser Storeuser[]
 }
 
 
@@ -114,14 +114,12 @@ model Property {
 model Storeuser {
   id      Int     @id @default(autoincrement())
   user   User    @relation(fields: [userId], references: [id])
-  userId Int     @unique
-  productstoreId Int     
+  userId Int       
   createdAt   DateTime @default(now())
   colorProduct String?
   propertyType String?
   quantity Int
   imageUrl String?
-  storeBuyerName String? 
-  storeBuyerId Int
-  product Product[]
+  product Product   @relation(fields: [productstoreId], references: [id]) 
+  productstoreId Int   
 }
