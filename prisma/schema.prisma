@@ -20,6 +20,7 @@ model User {
   reprisentativeLegal Legalrepresentative?
   products Product[]
   storeuser Storeuser[]
+  favoritList Favoritlist[]
 }
 
 
@@ -64,6 +65,7 @@ model Legalrepresentative {
   identityImages String?
   legalPhoneNumber String?
   expireIdentity String?
+  
 
 }
 
@@ -87,9 +89,11 @@ model Product {
   descriptiondetail1 String?
   descriptiondetail2 String?
   descriptiondetail3 String?
+  likeProduct Int? @default(0)
   images  Image[]
   property Property[]
   store Storeuser[]
+  favoritList Favoritlist[]
 }
 
 model Image {
@@ -122,4 +126,15 @@ model Storeuser {
   imageUrl String?
   product Product   @relation(fields: [productstoreId], references: [id]) 
   productstoreId Int   
+}
+
+
+model Favoritlist {
+  id      Int     @id @default(autoincrement())
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     
+  createdAt   DateTime @default(now())
+  product Product   @relation(fields: [productfavoritId], references: [id]) 
+  productfavoritId Int 
+
 }
