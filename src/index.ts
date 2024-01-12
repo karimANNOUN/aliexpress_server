@@ -632,26 +632,142 @@ app.post('/favoritproduct',verifyToken,async(req,res)=>{
     }
   })
 
-  const products = await prisma.product.findMany({
-    include: {
-      user:true,
-      images: true,
-      property: true,
-      favoritList:{
-        include:{
-          user:true
+  if (favoritProduct) {
+    const products = await prisma.product.findMany({
+      include: {
+        user:true,
+        images: true,
+        property: true,
+        favoritList:{
+          include:{
+            user:true
+          }
         }
-      }
-    },
-  })
-
-  res.status(200).json({ success: true, message: 'product liked success', products });    
+      },
+    })
+  
+    res.status(200).json({ success: true, message: 'product liked success', products });     
+  }if (!favoritProduct) {
+    res.status(200).json({ success: false, message: 'error'});    
+  }
+   
 
 }catch (error) {
   console.error(error);
      return res.status(500).json({ success: false, message: 'Error server' });
    }
 })
+
+
+app.delete('/deletefavoritproduct',verifyToken,async(req,res)=>{
+  try{
+  const deletefavoritProduct = await prisma.Favoritlist.delete({
+    where:{
+      userId:req.user.user.id,
+      productfavoritId:req.body.art.id
+    }
+  })
+
+  if (deletefavoritProduct) {
+    const products = await prisma.product.findMany({
+      include: {
+        user:true,
+        images: true,
+        property: true,
+        favoritList:{
+          include:{
+            user:true
+          }
+        }
+      },
+    })
+  
+    res.status(200).json({ success: true, message: 'product unliked successfully', products });      
+  }if (!deletefavoritProduct) {
+    res.status(400).json({ success: false, message: 'opération failde' });     
+  }
+  
+
+}catch (error) {
+  console.error(error);
+     return res.status(500).json({ success: false, message: 'Error server' });
+   }
+})
+
+
+app.get('/getfavoritproduct',verifyToken,async(req,res)=>{
+  try{
+  const favoritProducts = await prisma.Favoritlist.findMany({
+    where:{
+      userId:req.user.user.id,
+    },
+
+    include:{
+      user:true,
+      product:{
+        include:{
+          images:true,
+          property:true
+        }
+      }
+    }
+
+  })
+
+
+
+  if (favoritProducts) {
+    res.status(200).json({ success: true, message: 'product get successfully', favoritProducts});      
+  }
+  
+
+}catch (error) {
+  console.error(error);
+     return res.status(500).json({ success: false, message: 'Error server' });
+   }
+})
+
+app.delete('/deletefavoritlist',verifyToken,async(req,res)=>{
+ console.log(req.body)
+ try{
+  const deletefavoritProduct = await prisma.Favoritlist.delete({
+    where:{
+     id:req.body.favorit.id
+    }
+  })
+
+  if (deletefavoritProduct) {
+    const favoritProducts = await prisma.Favoritlist.findMany({
+      where:{
+        userId:req.user.user.id,
+      },
+  
+      include:{
+        user:true,
+        product:{
+          include:{
+            images:true,
+            property:true
+          }
+        }
+      }
+  
+    })
+  
+    res.status(200).json({ success: true, message: 'product get successfully', favoritProducts});      
+  }if (!deletefavoritProduct) {
+    res.status(400).json({ success: false, message: 'opération failde' });     
+  }
+  
+
+}catch (error) {
+  console.error(error);
+     return res.status(500).json({ success: false, message: 'Error server' });
+   }
+})
+
+
+
 
 app.listen(8000, () =>
   console.log(`🚀Server ready at: http://localhost:8000`)) 
