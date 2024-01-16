@@ -91,23 +91,28 @@ app.post('/register', async (req, res) => {
   };
 
   try {
-    const newUser = await prisma.user.create({
-      data: {
-        email,
-        name,
-        confirmationCode,
-        password:hashedPassword,
-        role:"simple"
-      },
-    });
-    await transporter.sendMail(mailOptions);
-    return res.json({ success: true, message: 'Confirmation email sent successfully.',newUser });
+    const mail=  await transporter.sendMail(mailOptions);
+    if (mail) {
+      const newUser = await prisma.user.create({
+        data: {
+          email,
+          name,
+          confirmationCode,
+          password:hashedPassword,
+          role:"simple"
+        },
+      });   
+      return res.json({ success: true, message: 'Confirmation email sent successfully.',newUser });
+    }
+   
+ 
+   
   } catch (error) {
     console.error(error);
     return res.status(500).json({ success: false, message: 'Error sending confirmation email.' });
   }
 });
-
+ 
 app.post('/confirm', async (req, res) => {
   const { email, code } = req.body;
 
@@ -550,7 +555,9 @@ app.post('/addstoreproduct',verifyToken,async(req,res)=>{
         propertyType: optionSize ,
         quantity: quantitySize , 
         imageUrl: favoriteImage ,
-        productstoreId:art.id
+        productstoreId:art.id,
+        productStoreName:art.user.name,
+        productUserStoreId:art.user.id 
         }
       });
         
@@ -573,8 +580,10 @@ app.post('/addstoreproduct',verifyToken,async(req,res)=>{
       colorProduct: favoritColor ,
       propertyType: optionSize ,
       quantity: quantitySize , 
-      imageUrl: favoriteImage ,
-      productstoreId:art.id
+      imageUrl: favoriteImage , 
+      productstoreId:art.id,
+      productStoreName:art.user.name,
+      productUserStoreId:art.user.id
       }
     });
     if (storeProduct) {
@@ -604,31 +613,36 @@ app.get('/getstoreproduct',verifyToken,async(req,res)=>{
   const storeProductUser = await prisma.storeuser.findMany({
     where:{userId:req.user.user.id},
     include:{
-           product:{
-            include:{
-              user:true,
-              property:true,
-              images:true
-            }
-           },
-           user:true
-    }
+      product:{
+       include:{
+         user:true,
+         property:true,
+         images:true
+       }
+      },
+      user:true
+}
+
+ 
+  //  groupeby:{productStoreName},
+  
   })
+
   res.status(200).json({ success: true, message: 'product stored success',storeProductUser });    
 
 }catch (error) {
   console.error(error);
      return res.status(500).json({ success: false, message: 'Error server' });
    }
-})
-
+})  
+ 
 
 app.post('/favoritproduct',verifyToken,async(req,res)=>{
   try{
   const favoritProduct = await prisma.Favoritlist.create({
     data:{
       userId:req.user.user.id,
-      productfavoritId:req.body.art.id
+      productfavoritId:req.body.art.id 
     }
   })
 
@@ -645,8 +659,22 @@ app.post('/favoritproduct',verifyToken,async(req,res)=>{
         }
       },
     })
+
+    const storeProductUser = await prisma.storeuser.findMany({
+      where:{userId:req.user.user.id},
+      include:{
+        product:{
+         include:{
+           user:true,
+           property:true,
+           images:true
+         }
+        },
+        user:true
+      }
+      })
   
-    res.status(200).json({ success: true, message: 'product liked success', products });     
+    res.status(200).json({ success: true, message: 'product liked success', products ,storeProductUser });     
   }if (!favoritProduct) {
     res.status(200).json({ success: false, message: 'error'});    
   }
@@ -666,7 +694,7 @@ app.delete('/deletefavoritproduct',verifyToken,async(req,res)=>{
       userId:req.user.user.id,
       productfavoritId:req.body.art.id
     }
-  })
+  }) 
 
   if (deletefavoritProduct) {
     const products = await prisma.product.findMany({
@@ -681,8 +709,22 @@ app.delete('/deletefavoritproduct',verifyToken,async(req,res)=>{
         }
       },
     })
+
+    const storeProductUser = await prisma.storeuser.findMany({
+      where:{userId:req.user.user.id},
+      include:{
+        product:{
+         include:{
+           user:true,
+           property:true,
+           images:true
+         }
+        },
+        user:true
+      }
+      })
   
-    res.status(200).json({ success: true, message: 'product unliked successfully', products });      
+    res.status(200).json({ success: true, message: 'product unliked successfully', products ,storeProductUser });      
   }if (!deletefavoritProduct) {
     res.status(400).json({ success: false, message: 'opération failde' });     
   }
@@ -727,8 +769,10 @@ app.get('/getfavoritproduct',verifyToken,async(req,res)=>{
    }
 })
 
+
+
 app.delete('/deletefavoritlist',verifyToken,async(req,res)=>{
- console.log(req.body)
+ 
  try{
   const deletefavoritProduct = await prisma.Favoritlist.delete({
     where:{
@@ -753,8 +797,22 @@ app.delete('/deletefavoritlist',verifyToken,async(req,res)=>{
       }
   
     })
+
+    const storeProductUser = await prisma.storeuser.findMany({
+      where:{userId:req.user.user.id},
+      include:{
+        product:{
+         include:{
+           user:true,
+           property:true,
+           images:true
+         }
+        },
+        user:true
+      }
+      })
   
-    res.status(200).json({ success: true, message: 'product get successfully', favoritProducts});      
+    res.status(200).json({ success: true, message: 'product get successfully', favoritProducts,storeProductUser});      
   }if (!deletefavoritProduct) {
     res.status(400).json({ success: false, message: 'opération failde' });     
   }
@@ -766,7 +824,41 @@ app.delete('/deletefavoritlist',verifyToken,async(req,res)=>{
    }
 })
 
-
+app.delete('/deletestoreproduct',verifyToken,async(req,res)=>{
+ 
+  try{
+   const deleteStoreProduct = await prisma.Storeuser.delete({
+     where:{
+      id:req.body.prod.id
+     }
+   })
+ 
+   if (deleteStoreProduct) {
+    const storeProductUser = await prisma.storeuser.findMany({
+      where:{userId:req.user.user.id},
+      include:{
+        product:{
+         include:{
+           user:true,
+           property:true,
+           images:true
+         }
+        },
+        user:true
+      }
+      })
+   
+     res.status(200).json({ success: true, message: 'product deleted successfully', storeProductUser});      
+   }if (!deleteStoreProduct) {
+     res.status(400).json({ success: false, message: 'opération failde' });     
+   }
+   
+ 
+ }catch (error) {
+   console.error(error);
+      return res.status(500).json({ success: false, message: 'Error server' });
+    }
+ })
 
 
 app.listen(8000, () =>

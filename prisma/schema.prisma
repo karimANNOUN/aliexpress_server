@@ -125,7 +125,9 @@ model Storeuser {
   quantity Int
   imageUrl String?
   product Product   @relation(fields: [productstoreId], references: [id]) 
-  productstoreId Int   
+  productstoreId Int 
+  productStoreName String?
+  productUserStoreId Int?  
 }
 
 
