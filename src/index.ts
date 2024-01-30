@@ -689,7 +689,7 @@ app.post('/favoritproduct',verifyToken,async(req,res)=>{
 
 app.delete('/deletefavoritproduct',verifyToken,async(req,res)=>{
   try{
-  const deletefavoritProduct = await prisma.Favoritlist.delete({
+  const deletefavoritProduct = await prisma.Favoritlist.deleteMany({
     where:{
       userId:req.user.user.id,
       productfavoritId:req.body.art.id
@@ -825,13 +825,15 @@ app.delete('/deletefavoritlist',verifyToken,async(req,res)=>{
 })
 
 app.delete('/deletestoreproduct',verifyToken,async(req,res)=>{
- 
   try{
-   const deleteStoreProduct = await prisma.Storeuser.delete({
+   const deleteStoreProduct = await prisma.Storeuser.deleteMany({
      where:{
-      id:req.body.prod.id
+      productstoreId:req.body.prod.product.id,
+      userId:req.user.user.id
      }
    })
+
+
  
    if (deleteStoreProduct) {
     const storeProductUser = await prisma.storeuser.findMany({
@@ -847,8 +849,25 @@ app.delete('/deletestoreproduct',verifyToken,async(req,res)=>{
         user:true
       }
       })
+
+      const favoritProducts = await prisma.Favoritlist.findMany({
+        where:{
+          userId:req.user.user.id,
+        },
+    
+        include:{
+          user:true,
+          product:{
+            include:{
+              images:true,
+              property:true
+            }
+          }
+        }
+    
+      })
    
-     res.status(200).json({ success: true, message: 'product deleted successfully', storeProductUser});      
+     res.status(200).json({ success: true, message: 'product deleted successfully', storeProductUser,favoritProducts});      
    }if (!deleteStoreProduct) {
      res.status(400).json({ success: false, message: 'opération failde' });     
    }
