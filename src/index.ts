@@ -880,5 +880,110 @@ app.delete('/deletestoreproduct',verifyToken,async(req,res)=>{
  })
 
 
+ app.patch('/updatedImages',upload.single('file'),verifyToken,async(req,res)=>{
+ try{
+  const findUser=await prisma.user.findUnique({
+    where:{
+      id:req.user.user.id
+    }
+  })
+
+
+
+  if (findUser.imageProfle == null ) {
+    await prisma.user.update({
+      where:{
+        id:req.user.user.id
+      },
+      data:{
+        imageProfle:req.file.path
+      }
+    })
+
+    res.status(200).json({ success: true, message: 'image updated successfully'});  
+
+
+  }if (findUser.imageProfle !== null) {
+    await prisma.user.update({
+      where:{
+        id:req.user.user.id
+      },
+      data:{
+        imageProfle:req.file.path
+      }
+    })
+
+    res.status(200).json({ success: true, message: 'image updated successfully'});  
+
+  }
+}catch (error) {
+  console.error(error);
+     return res.status(500).json({ success: false, message: 'Error server' });
+   }
+
+ })
+
+
+ app.put('/updatelocation',verifyToken,async(req,res)=>{
+  try{
+  
+  const {wilaya,country,commune,name,gender,adress,postalCode,phoneNumber}=req.body
+
+
+  const updatedUser= await prisma.user.update({
+    where:{id:req.user.user.id},
+    data:{
+      name:name,
+      gender:gender,
+      state:wilaya
+    }
+  })
+
+  const updatelocation= await prisma.location.findUnique({
+    where:{id:req.user.user.id},
+  })
+
+
+
+if (updatelocation == null) {
+  const newLocation= await prisma.location.create({
+    data:{
+      userId:req.user.user.id,
+      country:country,
+      rueAdress:adress,
+      commune:commune,
+      postalCode:postalCode,
+      phoneNumber:parseInt(phoneNumber)
+    }
+  })
+  if (condition) {
+    
+  }
+  res.status(200).json({ success: true, message: 'user information updated successfully'});  
+}if (updatelocation !== null) {
+  const updatedLocation= await prisma.location.update({
+    where:{userId:req.user.user.id},
+    data:{
+      country:country,
+      rueAdress:adress,
+      commune:commune,
+      postalCode:postalCode,
+      phoneNumber:parseInt(phoneNumber)
+    }
+  })
+  res.status(200).json({ success: true, message: 'user information updated successfully'});
+}
+
+
+
+ }catch (error) {
+   console.error(error);
+      return res.status(500).json({ success: false, message: 'Error server' });
+    }
+ 
+  })
+
+
+
 app.listen(8000, () =>
   console.log(`🚀Server ready at: http://localhost:8000`)) 

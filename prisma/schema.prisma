@@ -16,13 +16,27 @@ model User {
   createdAt   DateTime @default(now())
   role String?
   state String?
+  imageProfle String?
+  gender String?
   entrepriseInfo Entreprise?
   reprisentativeLegal Legalrepresentative?
+  locationUser Location[]
   products Product[]
   storeuser Storeuser[]
   favoritList Favoritlist[]
 }
 
+
+model Location {
+  id    Int     @id @default(autoincrement())
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int     @unique
+  country String?
+  rueAdress String?
+  commune String?
+  postalCode String?
+  phoneNumber Int?
+}
 
 
 model Entreprise {
