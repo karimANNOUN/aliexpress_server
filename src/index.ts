@@ -923,6 +923,39 @@ app.delete('/deletestoreproduct',verifyToken,async(req,res)=>{
 
  })
 
+ app.get('/userInfo',verifyToken,async(req,res)=>{
+  try{
+  
+    const userInfo=await prisma.user.findUnique({
+      where:{id:req.user.user.id},
+      select:{
+        id:true,
+        email:true,
+        name:true ,
+        state:true,
+        imageProfle:true,
+        gender:true,
+        locationUser:true
+      }
+    })
+   
+  
+
+    if (userInfo) {
+      res.status(200).json({ success: true, message: 'user information updated successfully',userInfo});
+    }
+
+ 
+  
+  
+  
+  
+   }catch (error) {
+     console.error(error);
+        return res.status(500).json({ success: false, message: 'Error server' });
+      }
+ })
+
 
  app.put('/updatelocation',verifyToken,async(req,res)=>{
   try{
@@ -940,9 +973,8 @@ app.delete('/deletestoreproduct',verifyToken,async(req,res)=>{
   })
 
   const updatelocation= await prisma.location.findUnique({
-    where:{id:req.user.user.id},
+    where:{userId:req.user.user.id},
   })
-
 
 
 if (updatelocation == null) {
@@ -956,10 +988,22 @@ if (updatelocation == null) {
       phoneNumber:parseInt(phoneNumber)
     }
   })
-  if (condition) {
-    
+  if (newLocation) {
+    const userInfo=await prisma.user.findUnique({
+      where:{id:req.user.user.id},
+      select:{
+        id:true,
+        email:true,
+        name:true ,
+        state:true,
+        imageProfle:true,
+        gender:true,
+        locationUser:true
+      }
+    })
+    res.status(200).json({ success: true, message: 'user information updated successfully',userInfo});  
   }
-  res.status(200).json({ success: true, message: 'user information updated successfully'});  
+ 
 }if (updatelocation !== null) {
   const updatedLocation= await prisma.location.update({
     where:{userId:req.user.user.id},
@@ -971,7 +1015,21 @@ if (updatelocation == null) {
       phoneNumber:parseInt(phoneNumber)
     }
   })
-  res.status(200).json({ success: true, message: 'user information updated successfully'});
+  if (updatedLocation) {
+    const userInfo=await prisma.user.findUnique({
+      where:{id:req.user.user.id},
+      select:{
+        id:true,
+        email:true,
+        name:true ,
+        state:true,
+        imageProfle:true,
+        gender:true,
+        locationUser:true
+      }
+    })
+    res.status(200).json({ success: true, message: 'user information updated successfully',userInfo});  
+  }
 }
 
 
