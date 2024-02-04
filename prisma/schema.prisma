@@ -20,7 +20,7 @@ model User {
   gender String?
   entrepriseInfo Entreprise?
   reprisentativeLegal Legalrepresentative?
-  locationUser Location[]
+  locationUser Location?
   products Product[]
   storeuser Storeuser[]
   favoritList Favoritlist[]
@@ -112,8 +112,8 @@ model Product {
 
 model Image {
   id        Int      @id @default(autoincrement())
-  imageUrl  String
-  color     String
+  imageUrl  String?
+  color     String?
   productId    Int
   product      Product     @relation(fields: [productId], references: [id])
 }

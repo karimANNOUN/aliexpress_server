@@ -939,7 +939,6 @@ app.delete('/deletestoreproduct',verifyToken,async(req,res)=>{
       }
     })
    
-  
 
     if (userInfo) {
       res.status(200).json({ success: true, message: 'user information updated successfully',userInfo});
@@ -1040,6 +1039,126 @@ if (updatelocation == null) {
     }
  
   })
+
+
+  app.patch('/updatecountry',verifyToken,async(req,res)=>{
+    try{
+    
+    const {country}=req.body
+  
+ 
+  
+  
+    const updatelocation= await prisma.location.findUnique({
+      where:{userId:req.user.user.id},
+    })
+  
+  
+  if (updatelocation == null) {
+    const newLocation= await prisma.location.create({
+      data:{
+        userId:req.user.user.id,
+        country:country.label,
+      }
+    })
+    if (newLocation) {
+      const userInfo=await prisma.user.findUnique({
+        where:{id:req.user.user.id},
+        select:{
+          id:true,
+          email:true,
+          name:true ,
+          state:true,
+          imageProfle:true,
+          gender:true,
+          locationUser:true
+        }
+      })
+      res.status(200).json({ success: true, message: 'user information updated successfully',userInfo});  
+    }
+   
+  }if (updatelocation !== null) {
+    const updatedLocation= await prisma.location.update({
+      where:{userId:req.user.user.id},
+      data:{
+        country:country.label
+      }
+    })
+    if (updatedLocation) {
+      const userInfo=await prisma.user.findUnique({
+        where:{id:req.user.user.id},
+        select:{
+          id:true,
+          email:true,
+          name:true ,
+          state:true,
+          imageProfle:true,
+          gender:true,
+          locationUser:true
+        }
+      })
+      res.status(200).json({ success: true, message: 'user information updated successfully',userInfo});  
+    }
+  }
+  
+  
+  
+   }catch (error) {
+     console.error(error);
+        return res.status(500).json({ success: false, message: 'Error server' });
+      }
+   
+    })
+
+
+
+    app.patch('/updateemail',verifyToken,async(req,res)=>{
+      try{
+      
+      const {email}=req.body
+    
+     
+   
+     const confirmationCode  = generateConfirmationCode();
+
+  // Create a new user with the confirmation code
+ 
+
+  // Send confirmation email
+  const mailOptions = {
+    from: `${process.env.MY_EMAIL}`, // Replace with your Gmail address
+    to: email,
+    subject: 'Email Confirmation',
+    text: `Your confirmation code is: ${confirmationCode}`, 
+  };
+
+  const mail=  await transporter.sendMail(mailOptions);
+  if (mail) {
+    const newUser = await prisma.user.update({
+      where:{id:req.user.user.id},
+      data: {
+       
+        confirmationCode,
+     
+      },
+    })
+
+    if (newUser) {
+      return res.json({ success: true, message: 'Confirmation code sent successfully.',confirmationCode });
+    }
+
+    
+  }
+     
+    
+     }catch (error) {
+       console.error(error);
+          return res.status(500).json({ success: false, message: 'Error server' });
+        }
+     
+      })
+
+
 
 
 
