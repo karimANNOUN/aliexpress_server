@@ -1121,12 +1121,9 @@ if (updatelocation == null) {
    
      const confirmationCode  = generateConfirmationCode();
 
-  // Create a new user with the confirmation code
- 
-
-  // Send confirmation email
+  
   const mailOptions = {
-    from: `${process.env.MY_EMAIL}`, // Replace with your Gmail address
+    from: `${process.env.MY_EMAIL}`, 
     to: email,
     subject: 'Email Confirmation',
     text: `Your confirmation code is: ${confirmationCode}`, 
@@ -1144,12 +1141,12 @@ if (updatelocation == null) {
     })
 
     if (newUser) {
-      return res.json({ success: true, message: 'Confirmation code sent successfully.',confirmationCode });
+
+     res.json({ success: true, message: 'Confirmation code sent successfully.'});
+    
     }
 
-    
   }
-     
     
      }catch (error) {
        console.error(error);
@@ -1158,6 +1155,116 @@ if (updatelocation == null) {
      
       })
 
+
+      
+      app.patch('/resendcode',verifyToken,async(req,res)=>{
+     
+        try{
+
+       const updatedCode=  await prisma.user.update({
+            where:{id:req.user.user.id},
+            data: {
+             
+              confirmationCode:null,
+           
+            },
+          })
+
+          if (updatedCode) {
+            res.json({ success: true, message: 'Confirmation code deleted sent successfully.'});
+          }
+
+        }catch (error) {
+       console.error(error);
+          return res.status(500).json({ success: false, message: 'Error server' });
+        }
+     
+
+    
+
+      })
+
+
+      app.patch('/updateconfirmemail',verifyToken,async(req,res)=>{
+     
+        try{
+
+          const {selectedCode,email}=req.body
+
+          const user = await prisma.user.findUnique({
+            where: { email },
+          });
+        
+        
+          if (user.confirmationCode === selectedCode) {
+            
+            await prisma.user.update({
+              where: { email },
+              data: { confirmationCode: null },
+            });
+
+          
+            res.json({ success: true, message: 'Confirmation code detected be truth.'});
+          
+        }
+
+        if (user.confirmationCode !== selectedCode) {
+            
+          res.json({ success: false, message: 'Confirmation code detected false'});
+        
+      }
+
+        }catch (error) {
+       console.error(error);
+          return res.status(500).json({ success: false, message: 'Error server' });
+        }
+     
+
+    
+
+      })
+
+
+
+      app.patch('/updateconfirmenewmail',verifyToken,async(req,res)=>{
+     
+        try{
+
+          const {newEmail}=req.body
+
+        
+            
+        const updatedEmail =   await prisma.user.update({
+              where: { id:req.user.user.id },
+              data: { email :newEmail },
+            });
+
+          if (updatedEmail) {
+            const userInfo=await prisma.user.findUnique({
+              where:{id:req.user.user.id},
+              select:{
+                id:true,
+                email:true,
+                name:true ,
+                state:true,
+                imageProfle:true,
+                gender:true,
+                locationUser:true
+              }
+            })
+            res.json({ success: true, message: 'Email updated sucessfully',userInfo});
+          }
+            
+
+        }catch (error) {
+       console.error(error);
+          return res.status(500).json({ success: false, message: 'Error server' });
+        }
+     
+
+    
+
+      })
 
 
 
