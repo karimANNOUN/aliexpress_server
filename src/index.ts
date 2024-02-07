@@ -1260,11 +1260,352 @@ if (updatelocation == null) {
        console.error(error);
           return res.status(500).json({ success: false, message: 'Error server' });
         }
-     
-
-    
-
       })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      app.patch('/updatepassword',verifyToken,async(req,res)=>{
+        try{
+        
+        const {email}=req.body
+      
+       
+     
+       const confirmationCode  = generateConfirmationCode();
+  
+    
+    const mailOptions = {
+      from: `${process.env.MY_EMAIL}`, 
+      to: email,
+      subject: 'Email Confirmation',
+      text: `Your confirmation code is: ${confirmationCode}`, 
+    };
+  
+    const mail=  await transporter.sendMail(mailOptions);
+    if (mail) {
+      const newUser = await prisma.user.update({
+        where:{id:req.user.user.id},
+        data: {
+         
+          confirmationCode,
+       
+        },
+      })
+  
+      if (newUser) {
+  
+       res.json({ success: true, message: 'Confirmation code sent successfully.'});
+      
+      }
+  
+    }
+      
+       }catch (error) {
+         console.error(error);
+            return res.status(500).json({ success: false, message: 'Error server' });
+          }
+       
+        })
+  
+  
+        
+        app.patch('/resendcodepassword',verifyToken,async(req,res)=>{
+       
+          try{
+  
+         const updatedCode=  await prisma.user.update({
+              where:{id:req.user.user.id},
+              data: {
+               
+                confirmationCode:null,
+             
+              },
+            })
+  
+            if (updatedCode) {
+              res.json({ success: true, message: 'Confirmation code deleted sent successfully.'});
+            }
+  
+          }catch (error) {
+         console.error(error);
+            return res.status(500).json({ success: false, message: 'Error server' });
+          }
+       
+  
+      
+  
+        })
+  
+  
+        app.patch('/updateconfirmpassword',verifyToken,async(req,res)=>{
+       
+          try{
+  
+            const {selectedCode,email}=req.body
+  
+            const user = await prisma.user.findUnique({
+              where: { email },
+            });
+          
+          
+            if (user.confirmationCode === selectedCode) {
+              
+              await prisma.user.update({
+                where: { email },
+                data: { confirmationCode: null },
+              });
+  
+            
+              res.json({ success: true, message: 'Confirmation code detected be truth.'});
+            
+          }
+  
+          if (user.confirmationCode !== selectedCode) {
+              
+            res.json({ success: false, message: 'Confirmation code detected false'});
+          
+        }
+  
+          }catch (error) {
+         console.error(error);
+            return res.status(500).json({ success: false, message: 'Error server' });
+          }
+       
+  
+      
+  
+        })
+  
+  
+  
+        app.patch('/updateconfirmenewpassword',verifyToken,async(req,res)=>{
+       
+          try{
+  
+            const {newPassword}=req.body
+  
+            const hashedPassword = await bcrypt.hash(newPassword, 10);
+              
+          const updatedEmail =   await prisma.user.update({
+                where: { id:req.user.user.id },
+                data: { password :hashedPassword },
+              });
+  
+            if (updatedEmail) {
+              const userInfo=await prisma.user.findUnique({
+                where:{id:req.user.user.id},
+                select:{
+                  id:true,
+                  email:true,
+                  name:true ,
+                  state:true,
+                  imageProfle:true,
+                  gender:true,
+                  locationUser:true
+                }
+              })
+              res.json({ success: true, message: 'Email updated sucessfully',userInfo});
+            }
+              
+  
+          }catch (error) {
+         console.error(error);
+            return res.status(500).json({ success: false, message: 'Error server' });
+          }
+       
+  
+      
+  
+        })
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        app.put('/updatelocationuser',verifyToken,async(req,res)=>{
+          try{
+          
+          const {phoneNumber,rueAdress,postalCode,commune,wilaya,country}=req.body
+         
+     
+        const updatedLocation= await prisma.location.update({
+          where:{userId:req.user.user.id},
+          data:{
+            country:country.label,
+            rueAdress :rueAdress,
+            commune :commune,
+            postalCode:postalCode,
+            phoneNumber:parseInt(phoneNumber)
+          }
+        })
+
+        const updateWilaya=await prisma.user.update({
+          where:{id:req.user.user.id},
+          data:{
+            state:wilaya,
+          }
+        })
+
+
+
+        if (updatedLocation && updateWilaya ) {
+          const userInfo=await prisma.user.findUnique({
+            where:{id:req.user.user.id},
+            select:{
+              id:true,
+              email:true,
+              name:true ,
+              state:true,
+              imageProfle:true,
+              gender:true,
+              locationUser:true
+            }
+          })
+          res.status(200).json({ success: true, message: 'user location information updated successfully',userInfo});  
+        }      
+         }catch (error) {
+           console.error(error);
+              return res.status(500).json({ success: false, message: 'Error server' });
+            }
+         
+          })
+
+          app.delete('/deleteuserInfo',verifyToken,async(req,res)=>{
+            try{
+            
+           
+           
+       
+          const deletetedLocation= await prisma.location.delete({
+            where:{userId:req.user.user.id},
+          })
+  
+  
+          if (deletetedLocation ) {
+            const userInfo=await prisma.user.findUnique({
+              where:{id:req.user.user.id},
+              select:{
+                id:true,
+                email:true,
+                name:true ,
+                state:true,
+                imageProfle:true,
+                gender:true,
+                locationUser:true
+              }
+            })
+            res.status(200).json({ success: true, message: 'user location information updated successfully',userInfo});  
+          }      
+           }catch (error) {
+             console.error(error);
+                return res.status(500).json({ success: false, message: 'Error server' });
+              }
+           
+            })
+
+
+
+
+
+            app.post('/createlocationuser',verifyToken,async(req,res)=>{
+              try{
+              
+              const {phoneNumber,rueAdress,postalCode,commune,wilaya,country}=req.body
+         
+            
+         
+            const updatedLocation= await prisma.location.create({
+              data:{
+                userId:req.user.user.id,
+                country:country.label,
+                rueAdress :rueAdress,
+                commune :commune,
+                postalCode:postalCode,
+                phoneNumber:parseInt(phoneNumber)
+              }
+            })
+    
+            const updateWilaya=await prisma.user.update({
+              where:{id:req.user.user.id},
+              data:{
+                state:wilaya,
+              }
+            })
+    
+    
+    
+            if (updatedLocation && updateWilaya ) {
+              const userInfo=await prisma.user.findUnique({
+                where:{id:req.user.user.id},
+                select:{
+                  id:true,
+                  email:true,
+                  name:true ,
+                  state:true,
+                  imageProfle:true,
+                  gender:true,
+                  locationUser:true
+                }
+              })
+              res.status(200).json({ success: true, message: 'user location information updated successfully',userInfo});  
+            }      
+             }catch (error) {
+               console.error(error);
+                  return res.status(500).json({ success: false, message: 'Error server' });
+                }
+             
+              })
+
+
+
 
 
 
