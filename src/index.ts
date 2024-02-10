@@ -1605,8 +1605,64 @@ if (updatelocation == null) {
               })
 
 
+              app.get('/getstorepayer',verifyToken,async(req,res)=>{
+                try{
+                 
+                  const findStorPayer=await prisma.storepayer.findMany({
+                    where:{userId:req.user.user.id},
+                    include:{
+                      user:true,
+                      product:true
+                    }
+                  })
+  
+
+                  res.status(200).json({ success: true, message: 'payer product create successfully',findStorPayer}); 
+                  
+                }catch (error) {
+                  console.error(error);
+                     return res.status(500).json({ success: false, message: 'Error server' });
+                   }
+              })
 
 
+              app.post('/creatpayerproduct',verifyToken,async(req,res)=>{
+                try{
+
+                const {prod,count}=req.body
+
+                const newStorPayer=await prisma.storepayer.create({
+                  data: {
+                  userId:req.user.user.id,       
+                  quantity:count,
+                  priceProduct:prod.product.price,
+                  priceLivraison:prod.product.prixlivraison,
+                  productstoreId:prod.product.id,
+                  productUserStoreId:prod.productUserStoreId
+                  }
+                })
+
+                if (newStorPayer) {
+
+                  const findStorPayer=await prisma.storepayer.findMany({
+                    where:{userId:req.user.user.id},
+                    include:{
+                      user:true,
+                      product:true 
+                    }
+                  })
+  
+
+                  res.status(200).json({ success: true, message: 'payer product create successfully',findStorPayer}); 
+                }
+
+
+
+              }catch (error) {
+                console.error(error);
+                   return res.status(500).json({ success: false, message: 'Error server' });
+                 }
+              })
 
 
 

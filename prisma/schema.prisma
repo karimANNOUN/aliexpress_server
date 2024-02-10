@@ -24,6 +24,7 @@ model User {
   products Product[]
   storeuser Storeuser[]
   favoritList Favoritlist[]
+  storePayer Storepayer[]
 }
 
 
@@ -108,6 +109,7 @@ model Product {
   property Property[]
   store Storeuser[]
   favoritList Favoritlist[]
+  storePayer Storepayer[]
 }
 
 model Image {
@@ -141,6 +143,20 @@ model Storeuser {
   product Product   @relation(fields: [productstoreId], references: [id]) 
   productstoreId Int 
   productStoreName String?
+  productUserStoreId Int?  
+}
+
+
+model Storepayer {
+  id      Int     @id @default(autoincrement())
+  user   User?    @relation(fields: [userId], references: [id])
+  userId Int?      
+  createdAt   DateTime @default(now())
+  quantity Int?
+  priceProduct Int?
+  priceLivraison Int?
+  product Product   @relation(fields: [productstoreId], references: [id]) 
+  productstoreId Int 
   productUserStoreId Int?  
 }
 
