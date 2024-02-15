@@ -567,8 +567,17 @@ app.post('/addstoreproduct',verifyToken,async(req,res)=>{
             where:{userId:req.user.user.id}
           })
            
+          const product = await prisma.product.findUnique({
+            where:{id:art.id},
+            include: {
+              user:true,
+              images: true,
+              property: true,
+              favoritList:true
+            },
+          })
     
-          res.status(200).json({ success: true, message: 'product stored success',storeProductUser });    
+          res.status(200).json({ success: true, message: 'product stored success',storeProductUser,product });    
         }  
       }if (newStore !== undefined) {
         res.status(401).json({ success: false, message: 'product already exist in your store'});   
@@ -673,8 +682,19 @@ app.post('/favoritproduct',verifyToken,async(req,res)=>{
         user:true
       }
       })
+
+      const product = await prisma.product.findUnique({
+        where:{id:req.body.art.id},
+        include: {
+          user:true,
+          images: true,
+          property: true,
+          favoritList:true
+        },
+      })
+
   
-    res.status(200).json({ success: true, message: 'product liked success', products ,storeProductUser });     
+    res.status(200).json({ success: true, message: 'product liked success', products ,storeProductUser,product });     
   }if (!favoritProduct) {
     res.status(200).json({ success: false, message: 'error'});    
   }
@@ -723,8 +743,18 @@ app.delete('/deletefavoritproduct',verifyToken,async(req,res)=>{
         user:true
       }
       })
+
+      const product = await prisma.product.findUnique({
+        where:{id:req.body.art.id},
+        include: {
+          user:true,
+          images: true,
+          property: true,
+          favoritList:true
+        },
+      })
   
-    res.status(200).json({ success: true, message: 'product unliked successfully', products ,storeProductUser });      
+    res.status(200).json({ success: true, message: 'product unliked successfully', products ,storeProductUser,product });      
   }if (!deletefavoritProduct) {
     res.status(400).json({ success: false, message: 'opération failde' });     
   }
@@ -1631,18 +1661,85 @@ if (updatelocation == null) {
 
                 const {prod,count}=req.body
 
-                const newStorPayer=await prisma.storepayer.create({
+                
+                if (prod.product.solde === 0) {
+                  const newPrice=prod.product.price
+                  const newStorPayer=await prisma.storepayer.create({
+                    data: {
+                    userId:req.user.user.id,       
+                    quantity:count,
+                    priceProduct:newPrice,
+                    priceLivraison:prod.product.prixlivraison,
+                    productstoreId:prod.product.id,
+                    productUserStoreId:prod.productUserStoreId
+                    }
+                  })
+  
+                  if (newStorPayer) {
+  
+                    const findStorPayer=await prisma.storepayer.findMany({
+                      where:{userId:req.user.user.id},
+                      include:{
+                        user:true,
+                        product:true 
+                      }
+                    })
+    
+  
+                    res.status(200).json({ success: true, message: 'payer product create successfully',findStorPayer}); 
+                  }
+                }else{
+                  const newPrice=prod.product.price - (prod.product.price*prod.product.solde/100)
+                  const newStorPayer=await prisma.storepayer.create({
+                    data: {
+                    userId:req.user.user.id,       
+                    quantity:count,
+                    priceProduct:newPrice,
+                    priceLivraison:prod.product.prixlivraison,
+                    productstoreId:prod.product.id,
+                    productUserStoreId:prod.productUserStoreId
+                    }
+                  })
+  
+                  if (newStorPayer) {
+  
+                    const findStorPayer=await prisma.storepayer.findMany({
+                      where:{userId:req.user.user.id},
+                      include:{
+                        user:true,
+                        product:true 
+                      }
+                    })
+    
+  
+                    res.status(200).json({ success: true, message: 'payer product create successfully',findStorPayer}); 
+                  }
+                }
+              }catch (error) {
+                console.error(error);
+                   return res.status(500).json({ success: false, message: 'Error server' });
+                 }
+              })
+
+
+
+
+              app.patch('/updateaddquantity',verifyToken,async(req,res)=>{
+                try{
+
+                const {quantity,prod}=req.body
+
+                const updateStorPayer=await prisma.storepayer.updateMany({
+                  where:{
+                    userId:req.user.user.id,
+                    productstoreId:prod.product.id,
+                  },
                   data: {
-                  userId:req.user.user.id,       
-                  quantity:count,
-                  priceProduct:prod.product.price,
-                  priceLivraison:prod.product.prixlivraison,
-                  productstoreId:prod.product.id,
-                  productUserStoreId:prod.productUserStoreId
+                  quantity:quantity+1
                   }
                 })
 
-                if (newStorPayer) {
+                if (updateStorPayer) {
 
                   const findStorPayer=await prisma.storepayer.findMany({
                     where:{userId:req.user.user.id},
@@ -1653,7 +1750,7 @@ if (updatelocation == null) {
                   })
   
 
-                  res.status(200).json({ success: true, message: 'payer product create successfully',findStorPayer}); 
+                  res.status(200).json({ success: true, message: 'payer product update successfully',findStorPayer}); 
                 }
 
 
@@ -1664,6 +1761,148 @@ if (updatelocation == null) {
                  }
               })
 
+
+              app.patch('/updatemoinquantity',verifyToken,async(req,res)=>{
+                try{
+
+                const {quantity,prod}=req.body
+
+                const updateStorPayer=await prisma.storepayer.updateMany({
+                  where:{
+                    userId:req.user.user.id,
+                    productstoreId:prod.product.id,
+                  },
+                  data: {
+                  quantity:quantity-1
+                  }
+                })
+
+                if (quantity === 1) {
+                  await prisma.storeuser.deleteMany({
+                    where:{
+                      userId:req.user.user.id,
+                      productstoreId:prod.product.id,
+                    }
+                  })
+                }
+
+                if (updateStorPayer) {
+
+                  const findStorPayer=await prisma.storepayer.findMany({
+                    where:{userId:req.user.user.id},
+                    include:{
+                      user:true,
+                      product:true 
+                    }
+                  })
+  
+
+                  res.status(200).json({ success: true, message: 'payer product update successfully',findStorPayer}); 
+                }
+
+
+
+              }catch (error) {
+                console.error(error);
+                   return res.status(500).json({ success: false, message: 'Error server' });
+                 }
+              })
+
+              
+              app.patch('/updatemoinquantity',verifyToken,async(req,res)=>{
+                try{
+
+                const {quantity,prod}=req.body
+
+                const updateStorPayer=await prisma.storepayer.updateMany({
+                  where:{
+                    userId:req.user.user.id,
+                    productstoreId:prod.product.id,
+                  },
+                  data: {
+                  quantity:quantity-1
+                  }
+                })
+
+                if (quantity === 1) {
+                  await prisma.storeuser.deleteMany({
+                    where:{
+                      userId:req.user.user.id,
+                      productstoreId:prod.product.id,
+                    }
+                  })
+
+                  await prisma.storepayer.deleteMany({
+                    where:{
+                      userId:req.user.user.id,
+                      productstoreId:prod.product.id,
+                    }
+                  })
+
+                }
+
+                if (updateStorPayer) {
+
+                  const findStorPayer=await prisma.storepayer.findMany({
+                    where:{userId:req.user.user.id},
+                    include:{
+                      user:true,
+                      product:true 
+                    }
+                  })
+  
+
+                  res.status(200).json({ success: true, message: 'payer product update successfully',findStorPayer}); 
+                }
+
+
+
+              }catch (error) {
+                console.error(error);
+                   return res.status(500).json({ success: false, message: 'Error server' });
+                 }
+              })
+
+
+              app.delete('/deletestorepayer',verifyToken,async(req,res)=>{
+                try{
+
+                  const {prod}=req.body
+  
+                  
+  
+                
+                  const deleteStore =  await prisma.storepayer.deleteMany({
+                      where:{
+                        userId:req.user.user.id,
+                        productstoreId:prod.product.id,
+                      }
+                    })
+                  
+  
+                  if (deleteStore) {
+  
+                    const findStorPayer=await prisma.storepayer.findMany({
+                      where:{userId:req.user.user.id},
+                      include:{
+                        user:true,
+                        product:true 
+                      }
+                    })
+    
+  
+                    res.status(200).json({ success: true, message: 'payer product deleted successfully',findStorPayer}); 
+                  }
+  
+  
+  
+                }catch (error) {
+                  console.error(error);
+                     return res.status(500).json({ success: false, message: 'Error server' });
+                   }
+              })
+
+              
 
 
 app.listen(8000, () =>
