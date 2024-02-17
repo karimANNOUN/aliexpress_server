@@ -144,6 +144,7 @@ model Storeuser {
   productstoreId Int 
   productStoreName String?
   productUserStoreId Int?  
+  storePayer Storepayer?
 }
 
 
@@ -158,6 +159,8 @@ model Storepayer {
   product Product   @relation(fields: [productstoreId], references: [id]) 
   productstoreId Int 
   productUserStoreId Int?  
+  store Storeuser?  @relation(fields: [storeId], references: [id]) 
+  storeId Int? @unique 
 }
 
 

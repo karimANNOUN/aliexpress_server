@@ -1642,7 +1642,8 @@ if (updatelocation == null) {
                     where:{userId:req.user.user.id},
                     include:{
                       user:true,
-                      product:true
+                      product:true,
+                      store:true
                     }
                   })
   
@@ -1671,7 +1672,8 @@ if (updatelocation == null) {
                     priceProduct:newPrice,
                     priceLivraison:prod.product.prixlivraison,
                     productstoreId:prod.product.id,
-                    productUserStoreId:prod.productUserStoreId
+                    productUserStoreId:prod.productUserStoreId,
+                    storeId:prod.id
                     }
                   })
   
@@ -1681,7 +1683,8 @@ if (updatelocation == null) {
                       where:{userId:req.user.user.id},
                       include:{
                         user:true,
-                        product:true 
+                        product:true,
+                        store:true 
                       }
                     })
     
@@ -1697,7 +1700,8 @@ if (updatelocation == null) {
                     priceProduct:newPrice,
                     priceLivraison:prod.product.prixlivraison,
                     productstoreId:prod.product.id,
-                    productUserStoreId:prod.productUserStoreId
+                    productUserStoreId:prod.productUserStoreId,
+                    storeId:prod.id
                     }
                   })
   
@@ -1707,7 +1711,8 @@ if (updatelocation == null) {
                       where:{userId:req.user.user.id},
                       include:{
                         user:true,
-                        product:true 
+                        product:true,
+                        store:true 
                       }
                     })
     
@@ -1745,7 +1750,8 @@ if (updatelocation == null) {
                     where:{userId:req.user.user.id},
                     include:{
                       user:true,
-                      product:true 
+                      product:true,
+                      store:true 
                     }
                   })
   
@@ -1792,7 +1798,8 @@ if (updatelocation == null) {
                     where:{userId:req.user.user.id},
                     include:{
                       user:true,
-                      product:true 
+                      product:true,
+                      store:true 
                     }
                   })
   
@@ -1847,7 +1854,8 @@ if (updatelocation == null) {
                     where:{userId:req.user.user.id},
                     include:{
                       user:true,
-                      product:true 
+                      product:true,
+                      store:true 
                     }
                   })
   
@@ -1886,7 +1894,8 @@ if (updatelocation == null) {
                       where:{userId:req.user.user.id},
                       include:{
                         user:true,
-                        product:true 
+                        product:true,
+                        store:true
                       }
                     })
     
