@@ -89,6 +89,7 @@ model Product {
   id      Int     @id @default(autoincrement())
   user   User    @relation(fields: [userId], references: [id])
   userId Int     @unique
+  createdAt   DateTime @default(now())
   title String?
   price   Int?
   properties String?

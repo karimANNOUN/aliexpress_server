@@ -18,6 +18,7 @@ const app = express()
  const favoritProduct=require('./routesControllers/favoritproduct')
  const profileUpdate=require('./routesControllers/profilupdate')
  const storePayer=require('./routesControllers/storepayer')
+ const storeSeller=require('./routesControllers/storeseller')
  
 
 app.use(bodyParser.json());
@@ -47,6 +48,7 @@ app.use('/',storeBayer)
 app.use('/',favoritProduct)
 app.use('/',profileUpdate)
 app.use('/',storePayer)
+app.use('/',storeSeller)
 
 
 
