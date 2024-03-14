@@ -145,8 +145,6 @@ module.exports.getProductSellerUnique=async(req:any,res:any)=>{
   
   try{
 
-   
-
     const productSeller = await prisma.product.findUnique({
       where:{
         id:parseInt(req.params.prodId),
@@ -466,3 +464,407 @@ module.exports.updatedDescriptionTitleTwo=async(req:any,res:any)=>{
        return res.status(500).json({ success: false, message: 'Error server' });
      }
 }
+
+
+module.exports.updatedDescriptionTitleThree=async(req:any,res:any)=>{
+  
+  try{
+  
+    const {descripTitle3,product}=req.body;
+
+ 
+
+   const newDescriptionTitle=await prisma.product.update({
+    where:{
+      id:product.id,
+    },
+    data:{
+      descriptiontitle3:descripTitle3
+    }
+   }),
+
+     if (newDescriptionTitle) {
+      const productSeller = await prisma.product.findUnique({
+        where:{
+          id:product.id,
+        },
+        include: {
+          user:true,
+          images:true,
+          property:true
+     },
+      })
+  
+      
+  
+      if (productSeller) {
+          res.status(200).json({ success: true, message: 'description Title 3 update success',productSeller }); 
+      }else{
+        res.status(400).json({ success: false, message: 'Error try again ' }); 
+      }
+     }
+
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
+
+
+module.exports.updatedDescriptionOne=async(req:any,res:any)=>{
+  
+  try{
+  
+    const {descrip1,product}=req.body;
+
+ 
+
+   const newDescription=await prisma.product.update({
+    where:{
+      id:product.id,
+    },
+    data:{
+      descriptiondetail1:descrip1
+    }
+   }),
+
+     if (newDescription) {
+      const productSeller = await prisma.product.findUnique({
+        where:{
+          id:product.id,
+        },
+        include: {
+          user:true,
+          images:true,
+          property:true
+     },
+      })
+  
+      
+  
+      if (productSeller) {
+          res.status(200).json({ success: true, message: ' first description update success',productSeller }); 
+      }else{
+        res.status(400).json({ success: false, message: 'Error try again ' }); 
+      }
+     }
+
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
+
+
+module.exports.updatedDescriptionTwo=async(req:any,res:any)=>{
+  
+  try{
+  
+    const {descrip2,product}=req.body;
+
+ 
+
+   const newDescription=await prisma.product.update({
+    where:{
+      id:product.id,
+    },
+    data:{
+      descriptiondetail2:descrip2
+    }
+   }),
+
+     if (newDescription) {
+      const productSeller = await prisma.product.findUnique({
+        where:{
+          id:product.id,
+        },
+        include: {
+          user:true,
+          images:true,
+          property:true
+     },
+      })
+  
+      
+  
+      if (productSeller) {
+          res.status(200).json({ success: true, message: ' second description update success',productSeller }); 
+      }else{
+        res.status(400).json({ success: false, message: 'Error try again ' }); 
+      }
+     }
+
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
+
+
+module.exports.updatedDescriptionThree=async(req:any,res:any)=>{
+  
+  try{
+  
+    const {descrip3,product}=req.body;
+
+ 
+
+   const newDescription=await prisma.product.update({
+    where:{
+      id:product.id,
+    },
+    data:{
+      descriptiondetail3:descrip3
+    }
+   }),
+
+     if (newDescription) {
+      const productSeller = await prisma.product.findUnique({
+        where:{
+          id:product.id,
+        },
+        include: {
+          user:true,
+          images:true,
+          property:true
+     },
+      })
+  
+      
+  
+      if (productSeller) {
+          res.status(200).json({ success: true, message: ' third description update success',productSeller }); 
+      }else{
+        res.status(400).json({ success: false, message: 'Error try again ' }); 
+      }
+     }
+
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
+
+
+
+module.exports.updatedImageDescription=async(req:any,res:any)=>{
+  
+  try{
+
+    const {properties} =req.body
+
+   
+  
+
+   const newUpdates=await prisma.image.update({
+    where:{
+      id:JSON.parse(properties).id,
+      productId:JSON.parse(properties).productId,
+    },
+    data:{
+      imageUrl:req.file.path
+    }
+   })
+
+   if (newUpdates ) {
+    
+    const productSeller = await prisma.product.findUnique({
+      where:{
+        id:JSON.parse(properties).productId,
+      },
+      include: {
+        user:true,
+        images:true,
+        property:true
+   },
+    })
+
+    
+
+    if (productSeller) {
+        res.status(200).json({ success: true, message: 'description image update success',productSeller }); 
+    }else{
+      res.status(400).json({ success: false, message: 'Error try again ' }); 
+    }
+
+   }
+
+   
+  
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
+
+
+module.exports.updatedPrixLivraison=async(req:any,res:any)=>{
+  
+  try{
+  
+    const {prixLivraison,product}=req.body;
+
+ 
+
+   const newPrice=await prisma.product.update({
+    where:{
+      id:product.id,
+    },
+    data:{
+      prixlivraison:JSON.parse(prixLivraison)
+    }
+   }),
+
+     if (newPrice) {
+      const productSeller = await prisma.product.findUnique({
+        where:{
+          id:product.id,
+        },
+        include: {
+          user:true,
+          images:true,
+          property:true
+     },
+      })
+  
+      
+  
+      if (productSeller) {
+          res.status(200).json({ success: true, message: 'prix livraison update success',productSeller }); 
+      }else{
+        res.status(400).json({ success: false, message: 'Error try again ' }); 
+      }
+     }
+
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
+
+module.exports.updatedTempLivraison=async(req:any,res:any)=>{
+  
+  try{
+  
+    const {tempLivraison,product}=req.body;
+
+ 
+
+   const newTime=await prisma.product.update({
+    where:{
+      id:product.id,
+    },
+    data:{
+      templivraison:JSON.parse(tempLivraison)
+    }
+   }),
+
+     if (newTime) {
+      const productSeller = await prisma.product.findUnique({
+        where:{
+          id:product.id,
+        },
+        include: {
+          user:true,
+          images:true,
+          property:true
+     },
+      })
+  
+      
+  
+      if (productSeller) {
+          res.status(200).json({ success: true, message: 'temp livraison update success',productSeller }); 
+      }else{
+        res.status(400).json({ success: false, message: 'Error try again ' }); 
+      }
+     }
+
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
+
+
+module.exports.updatedQuantityUnique=async(req:any,res:any)=>{
+  
+  try{
+  
+    const {quantity , type , product}=req.body;
+
+
+    const newQuantity=await prisma.property.update({
+      where:{
+        id:type.id,
+        productId:type.productId,
+      },
+      data:{
+        quantity:JSON.parse(quantity)
+      }
+     })
+ 
+
+
+     if (newQuantity) {
+      const productSeller = await prisma.product.findUnique({
+        where:{
+          id:product.id,
+        },
+        include: {
+          user:true,
+          images:true,
+          property:true
+     },
+      })
+  
+      
+  
+      if (productSeller) {
+          res.status(200).json({ success: true, message: 'quantity update success',productSeller }); 
+      }else{
+        res.status(400).json({ success: false, message: 'Error try again ' }); 
+      }
+     }
+
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
+
+module.exports.getProductSellerLivraisonGratuite=async(req:any,res:any)=>{
+  
+  try{
+
+    const productSeller = await prisma.product.findMany({
+      where:{
+        userId:req.user.user.id,
+        prixlivraison:0
+      },
+      include: {
+        user:true,
+        images:true,
+        property:true
+   },
+    })
+ 
+
+    if (productSeller) {
+        res.status(200).json({ success: true, message: 'product get success',productSeller }); 
+    }
+  
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+

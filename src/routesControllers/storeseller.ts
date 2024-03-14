@@ -27,8 +27,20 @@ router.patch('/updatedescription',verifyToken,storesellerservice.updatedDescript
 
 router.patch('/updatedescriptiontitleone',verifyToken,storesellerservice.updatedDescriptionTitleOne)
 router.patch('/updatedescriptiontitletwo',verifyToken,storesellerservice.updatedDescriptionTitleTwo)
+router.patch('/updatedescriptiontitlethree',verifyToken,storesellerservice.updatedDescriptionTitleThree)
+
+router.patch('/updatedescriptionone',verifyToken,storesellerservice.updatedDescriptionOne)
+router.patch('/updatedescriptiontwo',verifyToken,storesellerservice.updatedDescriptionTwo)
+router.patch('/updatedescriptionthree',verifyToken,storesellerservice.updatedDescriptionThree)
+
+router.patch('/updatedimagesdescription',upload.single('file'),verifyToken,storesellerservice.updatedImageDescription)
 
 
+router.patch('/updateprixlivraison',verifyToken,storesellerservice.updatedPrixLivraison)
+router.patch('/updatetemplivraison',verifyToken,storesellerservice.updatedTempLivraison)
+router.patch('/updatequantityunique',verifyToken,storesellerservice.updatedQuantityUnique)
 
+
+router.get('/livraisongratuite',verifyToken,storesellerservice.getProductSellerLivraisonGratuite)
 
 module.exports = router;
