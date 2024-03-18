@@ -868,3 +868,34 @@ module.exports.getProductSellerLivraisonGratuite=async(req:any,res:any)=>{
      }
 }
 
+
+module.exports.getProductSellerPrice=async(req:any,res:any)=>{
+  
+  try{
+
+    const productSeller = await prisma.product.findMany({
+      where:{
+        userId:req.user.user.id,
+        
+      },
+      orderBy: {
+        price: 'asc'
+      },
+      include: {
+        user:true,
+        images:true,
+        property:true
+   },
+    })
+ 
+
+    if (productSeller) {
+        res.status(200).json({ success: true, message: 'product get success',productSeller }); 
+    }
+  
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+
