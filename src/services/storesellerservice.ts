@@ -899,3 +899,70 @@ module.exports.getProductSellerPrice=async(req:any,res:any)=>{
      }
 }
 
+
+module.exports.deleteProduct=async(req:any,res:any)=>{
+  
+  try{
+
+    const {prod} = req.body
+
+    const deleteStorePayer=await prisma.storepayer.deleteMany({
+      where:{productstoreId:prod.id}
+    })
+
+    const deleteImagesProduct=await prisma.image.deleteMany({
+      where:{productId:prod.id}
+    })
+
+    const deletePropertiesProduct=await prisma.property.deleteMany({
+      where:{productId:prod.id}
+    })
+
+    const deleteStoreProduct=await prisma.storeuser.deleteMany({
+      where:{productstoreId:prod.id}
+    })
+
+    const deleteFavoritProduct=await prisma.favoritlist.deleteMany({
+      where:{productfavoritId:prod.id}
+    })
+
+    
+    if (deleteStorePayer && deleteImagesProduct && deletePropertiesProduct && deleteStoreProduct && deleteFavoritProduct ) {
+
+      const deletedProduct= await prisma.product.delete({
+        where:{id:prod.id}
+      })
+  
+  
+     
+      if (deletedProduct) {
+        const productSeller = await prisma.product.findMany({
+          where:{
+            userId:req.user.user.id,
+            
+          },
+          orderBy: {
+            price: 'asc'
+          },
+          include: {
+            user:true,
+            images:true,
+            property:true
+       },
+        })
+     
+    
+        if (productSeller) {
+            res.status(200).json({ success: true, message: 'product deleted success',productSeller }); 
+        }
+      }
+    }
+   
+   
+  
+  }catch (error) {
+    console.error(error);
+       return res.status(500).json({ success: false, message: 'Error server' });
+     }
+}
+

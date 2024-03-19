@@ -44,4 +44,6 @@ router.patch('/updatequantityunique',verifyToken,storesellerservice.updatedQuant
 router.get('/livraisongratuite',verifyToken,storesellerservice.getProductSellerLivraisonGratuite)
 router.get('/getpricedown',verifyToken,storesellerservice.getProductSellerPrice)
 
+router.delete('/deleteproduct',verifyToken,storesellerservice.deleteProduct)
+
 module.exports = router;
