@@ -42,7 +42,18 @@ module.exports.addStoreProduct=async(req:any,res:any)=>{
           if (storeProduct) {
       
             const storeProductUser = await prisma.storeuser.findMany({
-              where:{userId:req.user.user.id}
+              where:{userId:req.user.user.id},
+              include:{
+                product:{
+                  include:{
+                    user:true,
+                    images: true,
+                    property: true,
+                    favoritList:true
+                  }
+                }
+
+              }
             })
              
             const product = await prisma.product.findUnique({
@@ -76,11 +87,31 @@ module.exports.addStoreProduct=async(req:any,res:any)=>{
       if (storeProduct) {
       
         const storeProductUser = await prisma.storeuser.findMany({
-          where:{userId:req.user.user.id}
+          where:{userId:req.user.user.id},
+          include:{
+            product:{
+             include:{
+               user:true,
+               property:true,
+               images:true
+             }
+            },
+            user:true
+      }
+        })
+
+        const product = await prisma.product.findUnique({
+          where:{id:art.id},
+          include: {
+            user:true,
+            images: true,
+            property: true,
+            favoritList:true
+          },
         })
          
   
-        res.status(200).json({ success: true, message: 'product stored success',storeProductUser });    
+        res.status(200).json({ success: true, message: 'product stored success',storeProductUser,product });    
       }  
       }
   

@@ -21,4 +21,6 @@ router.delete('/deletestorepayer',verifyToken,storepayerservice.deleteStorePayer
 
 
 
+
+
 module.exports = router;

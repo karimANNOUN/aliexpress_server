@@ -19,6 +19,7 @@ const app = express()
  const profileUpdate=require('./routesControllers/profilupdate')
  const storePayer=require('./routesControllers/storepayer')
  const storeSeller=require('./routesControllers/storeseller')
+ const paymentBayer=require('./routesControllers/payment')
  
 
 app.use(bodyParser.json());
@@ -49,6 +50,7 @@ app.use('/',favoritProduct)
 app.use('/',profileUpdate)
 app.use('/',storePayer)
 app.use('/',storeSeller)
+app.use('/',paymentBayer)
 
 
 

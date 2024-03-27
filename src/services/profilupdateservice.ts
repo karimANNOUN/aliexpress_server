@@ -126,19 +126,19 @@ module.exports.updateImageProfil=async(req:any,res:any)=>{
         })
       
         const updatelocation= await prisma.location.findUnique({
-          where:{userId:req.user.user.id},
+          where:{userlocationId:req.user.user.id},
         })
       
       
       if (updatelocation == null) {
         const newLocation= await prisma.location.create({
           data:{
-            userId:req.user.user.id,
+            userlocationId:req.user.user.id,
             country:country,
             rueAdress:adress,
             commune:commune,
             postalCode:postalCode,
-            phoneNumber:parseInt(phoneNumber)
+            phoneNumber:country.phone+phoneNumber
           }
         })
         if (newLocation) {
@@ -159,13 +159,13 @@ module.exports.updateImageProfil=async(req:any,res:any)=>{
        
       }if (updatelocation !== null) {
         const updatedLocation= await prisma.location.update({
-          where:{userId:req.user.user.id},
+          where:{userlocationId:req.user.user.id},
           data:{
             country:country,
             rueAdress:adress,
             commune:commune,
             postalCode:postalCode,
-            phoneNumber:parseInt(phoneNumber)
+            phoneNumber:country.phone+phoneNumber
           }
         })
         if (updatedLocation) {
@@ -204,14 +204,14 @@ module.exports.updateImageProfil=async(req:any,res:any)=>{
           
           
             const updatelocation= await prisma.location.findUnique({
-              where:{userId:req.user.user.id},
+              where:{userlocationId:req.user.user.id},
             })
           
           
           if (updatelocation == null) {
             const newLocation= await prisma.location.create({
               data:{
-                userId:req.user.user.id,
+                userlocationId:req.user.user.id,
                 country:country.label,
               }
             })
@@ -233,7 +233,7 @@ module.exports.updateImageProfil=async(req:any,res:any)=>{
            
           }if (updatelocation !== null) {
             const updatedLocation= await prisma.location.update({
-              where:{userId:req.user.user.id},
+              where:{userlocationId:req.user.user.id},
               data:{
                 country:country.label
               }
@@ -569,13 +569,13 @@ module.exports.updateImageProfil=async(req:any,res:any)=>{
                        
                    
                       const updatedLocation= await prisma.location.update({
-                        where:{userId:req.user.user.id},
+                        where:{userlocationId:req.user.user.id},
                         data:{
                           country:country.label,
                           rueAdress :rueAdress,
                           commune :commune,
                           postalCode:postalCode,
-                          phoneNumber:parseInt(phoneNumber)
+                          phoneNumber:country.phone+phoneNumber
                         }
                       })
               
@@ -615,7 +615,7 @@ module.exports.updateImageProfil=async(req:any,res:any)=>{
                         module.exports.deleteUserInfo=async(req:any,res:any)=>{
                             try{
                           const deletetedLocation= await prisma.location.delete({
-                            where:{userId:req.user.user.id},
+                            where:{userlocationId:req.user.user.id},
                           })
                   
                   
@@ -650,12 +650,12 @@ module.exports.updateImageProfil=async(req:any,res:any)=>{
                            
                               const updatedLocation= await prisma.location.create({
                                 data:{
-                                  userId:req.user.user.id,
                                   country:country.label,
                                   rueAdress :rueAdress,
                                   commune :commune,
-                                  postalCode:postalCode,
-                                  phoneNumber:parseInt(phoneNumber)
+                                  postalCode:postalCode, 
+                                  phoneNumber: country.phone+phoneNumber,
+                                  userlocationId:req.user.user.id, 
                                 }
                               })
                       
